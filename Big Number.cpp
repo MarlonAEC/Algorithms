@@ -9,7 +9,11 @@ using namespace std;
 
 /**
 Author: Marlon A. Espinosa Castañeiras
+https://www.linkedin.com/in/marlonaec/
+
 Class for work whit big numbers and perform the basic operations
+Keywords: Bigint, c/c++, class bigint,
+
 **/
 class Bignum{
     protected:
@@ -25,10 +29,17 @@ class Bignum{
     /**End of Contructor**/
 
     /**OPERATORS**/
-        Bignum operator +(const Bignum&);
-        Bignum operator -(const Bignum&);
-        bool operator<(const Bignum &) const;
-        bool operator>(const Bignum &) const;
+        void operator=(const Bignum&);
+        Bignum operator +(const Bignum&)const;
+        Bignum operator -(const Bignum&)const;
+        Bignum operator-()const;
+        Bignum operator *(const Bignum&)const;
+        bool operator<(const Bignum&)const;
+        bool operator>(const Bignum&)const;
+        bool operator<=(const Bignum&)const;
+        bool operator>=(const Bignum&)const;
+        bool operator==(const Bignum&)const;
+        bool operator!=(const Bignum&)const;
 
         friend ostream& operator <<(ostream&,const Bignum &);
         friend istream& operator >>(istream&, Bignum &A);
@@ -48,38 +59,82 @@ Bignum::Bignum(const Bignum &A){
 
 /**Funtion for set the readed string into a Bignum*/
 void Bignum::set_number(string s){
-    for(int i = s.size()-1;i > -1;i--)
+    int stop;//variable for do not read the sign
+    if(!isdigit(s[0])){//reading the sign
+        this->set_sign(false);
+        stop = 0;
+    }
+    else{
+        this->set_sign(true);
+        stop = -1;
+    }
+    for(int i = s.size()-1;i > stop;i--)//saving the number reverted for eazy operations.
         number.push_back(s[i]-'0');
+}
+
+Bignum Bignum::operator-()const{
+    Bignum sol = *this;
+    sol.set_sign(!this->get_sign());
+    return sol;
+}
+void Bignum::operator=(const Bignum &b){
+    sign = b.get_sign();
+    number = b.get_number();
 }
 
 /**Operator  '<' for compare two Bignums **/
 bool Bignum::operator<(const Bignum &b)const{
-    if(number.size() < b.get_number().size())//comparing the amount of digits
+    if(this->get_sign() != b.get_sign()){//have diferents signs
+        if(this->get_sign() && !b.get_sign())
+            return false;
         return true;
-    if(number.size() > b.get_number().size())//comparing the amount of digits
-        return false;
-    for(int i = 0;i < number.size();i++){//if both numbers have the same amount of digits then compare the digist one by one
-        if(number[i] == b.get_number()[i])//if are equal just ignore it
-            continue;
-        else if( number[i] < b.get_number()[i])//if not then return the answer
+    }
+    else if(this->get_sign()){//both are positve
+        if(number.size() < b.get_number().size())//comparing the amount of digits
             return true;
-        return false;
+        if(number.size() > b.get_number().size())//comparing the amount of digits
+            return false;
+        for(int i = 0;i < number.size();i++){//if both numbers have the same amount of digits then compare the digist one by one
+            if(number[i] == b.get_number()[i])//if are equal just ignore it
+                continue;
+            else if( number[i] < b.get_number()[i])//if not then return the answer
+                return true;
+            return false;
+        }
+    }
+    else{//both are negative
+        if(number.size() > b.get_number().size())//comparing the amount of digits
+            return true;
+        if(number.size() < b.get_number().size())//comparing the amount of digits
+            return false;
+        for(int i = 0;i < number.size();i++){//if both numbers have the same amount of digits then compare the digist one by one
+            if(number[i] == b.get_number()[i])//if are equal just ignore it
+                continue;
+            else if( number[i] > b.get_number()[i])//if not then return the answer
+                return true;
+            return false;
+        }
     }
 }
 
 /**Operator '>' for compare two Bignums**/
+bool Bignum::operator==(const Bignum &b)const{
+    return !(*this < b) && !(b < *this);
+}
 bool Bignum::operator>(const Bignum &b)const{
-    if(number.size() > b.get_number().size())//comparing the amount of digits
-        return true;
-    if(number.size() < b.get_number().size())//comparing the amount of digits
-        return false;
-    for(int i = 0;i < number.size();i++){
-        if(number[i] == b.get_number()[i])//if are equal just ignore it
-            continue;
-        else if( number[i] > b.get_number()[i])//if not then return the answer
-            return true;
-        return false;
-    }
+    return b < *this;
+}
+
+bool Bignum::operator<=(const Bignum &b)const{
+    return !(b < *this);
+}
+
+bool Bignum::operator>=(const Bignum &b)const{
+    return !(*this < b);
+}
+
+bool Bignum::operator!=(const Bignum &b)const{
+    return *this < b || b < *this;
 }
 
 /**Operator '-' for substract two bignum
@@ -92,58 +147,45 @@ E.G:
 ---------
 
 **/
-Bignum Bignum::operator-(const Bignum &b){
+Bignum Bignum::operator-(const Bignum &b)const{
     Bignum sol;
     int carry = 0; //carry for operations that exceed
     int value; //auxiliary variable for get the value of the digit on the current operation
     int min_size = min(number.size(),b.get_number().size());
 
-    if(*this > b){// comparing to subtract the major from the minor
-        sol.set_sign(true); //if the last condition match then the result is positive because A - B = +C, if A > B
-        for(int i = 0;i < number.size();i++){
-            if(i >= b.get_number().size())//if the value of i exceed the amount of digits of B, then do de operation whit '0' value
-                value = 0;
-            else
-                value = b.get_number()[i];//in other case is the current digit what we have to substract
-            if(number[i] - carry < value){//if this condition match then is because the digit - carry is less than the digit below so we add it 10 and do the substraction and carry = 1 for next operation
-                sol.number.push_back( (number[i] - carry + 10 - value) % 10);
-                carry = 1;
+    if(this->get_sign() == b.get_sign()){
+        if(*this >= b){// comparing to subtract the major from the minor
+            sol.set_sign(true); //if the last condition match then the result is positive because A - B = +C, if A > B
+            for(int i = 0;i < number.size();i++){
+                if(i >= b.get_number().size())//if the value of i exceed the amount of digits of B, then do de operation whit '0' value
+                    value = 0;
+                else
+                    value = b.get_number()[i];//in other case is the current digit what we have to substract
+                if(number[i] - carry < value){//if this condition match then is because the digit - carry is less than the digit below so we add it 10 and do the substraction and carry = 1 for next operation
+                    sol.number.push_back( (number[i] - carry + 10 - value) % 10);
+                    carry = 1;
+                }
+                else{//if not then we just substract the
+                    sol.number.push_back( (number[i]- carry - value) % 10 );
+                    carry = 0;
+                }
             }
-            else{//if not then we just substract the
-                sol.number.push_back( (number[i]- carry - value) % 10 );
-                carry = 0;
+            //Cleaning the leding ceros
+            int i = sol.number.size()-1;
+            while(i > 0 && sol.number[i] == 0){
+                sol.number.pop_back();
+                i--;
             }
+            return sol;
         }
+        return -(b - *this);
     }
-    else{//if not then substract the second number from the first one following the same rules
-        sol.set_sign(false);
-        for(int i = 0;i < b.get_number().size();i++){
-            if(i >= number.size())
-                value = 0;
-            else
-                value = number[i];
-            if(b.get_number()[i] - carry < number[i]){
-                sol.number.push_back( (b.get_number()[i] - carry + 10 - value) % 10);
-                carry = 1;
-            }
-            else{
-                sol.number.push_back( (b.get_number()[i]- carry - value) % 10 );
-                carry = 0;
-            }
-        }
-    }
+    return *this + (-b);
 
-    //Cleaning the leding ceros
-    int i = sol.number.size()-1;
-    while(i > 0 && sol.number[i] == 0){
-        sol.number.pop_back();
-        i--;
-    }
 
-    return sol;
 }
 
-Bignum Bignum::operator +(const Bignum &b){
+Bignum Bignum::operator +(const Bignum &b)const{
 /**Bignum for save the result of the sum**/
       Bignum sol;
 
@@ -151,66 +193,63 @@ Bignum Bignum::operator +(const Bignum &b){
       int partial_sums; //partial sum of two digits
       int min_size = min(number.size(),b.get_number().size()); //minumum size of the both bignums
 
-      /**Suming the numbers while they have the same amount of digits
-      E.G:
-       123456
-      +  4566
-      _______
-       128022
-      -------
-      -------
-      in this case we sum until 3 colum starting at 0, from rigth to left
-      **/
-      for(int i = 0;i < min_size;i++){
-           partial_sums = number[i] + b.get_number()[i] + carry;
-           sol.number.push_back(partial_sums % 10);
-           if(partial_sums > 9)
-                carry = 1;
-           else
-                carry = 0;
-      }
+      if(this->get_sign() == b.get_sign()){
+          sol.set_sign(this->get_sign());
 
-      /**Suming the leding numbers **/
-      if(number.size() < b.get_number().size()){
-           for(int i = min(number.size(),b.get_number().size());i < b.get_number().size();i++){
-                 partial_sums = b.number[i] + carry;
-                 sol.number.push_back( partial_sums % 10);
-                 if(partial_sums > 9)
+          for(int i = 0;i < min_size;i++){
+               partial_sums = number[i] + b.get_number()[i] + carry;
+               sol.number.push_back(partial_sums % 10);
+               if(partial_sums > 9)
                     carry = 1;
-                 else
+               else
                     carry = 0;
-           }
-      }
-    else{
-           for(int i = min(number.size(),b.get_number().size());i < number.size();i++){
-              partial_sums = number[i] + carry;
-              sol.number.push_back(partial_sums % 10);
-              if(partial_sums > 9)
-                 carry = 1;
-              else
-                 carry = 0;
-            }
-    }
-    //If at the end we have carry then we add it to the solution
-    if(carry == 1)
-        sol.number.push_back(1);
+          }
 
-    return sol;
+          /**Suming the leding numbers **/
+          if(number.size() < b.get_number().size()){
+               for(int i = min(number.size(),b.get_number().size());i < b.get_number().size();i++){
+                     partial_sums = b.number[i] + carry;
+                     sol.number.push_back( partial_sums % 10);
+                     if(partial_sums > 9)
+                        carry = 1;
+                     else
+                        carry = 0;
+               }
+          }
+        else{
+               for(int i = min(number.size(),b.get_number().size());i < number.size();i++){
+                  partial_sums = number[i] + carry;
+                  sol.number.push_back(partial_sums % 10);
+                  if(partial_sums > 9)
+                     carry = 1;
+                  else
+                     carry = 0;
+                }
+        }
+        //If at the end we have carry then we add it to the solution
+        if(carry == 1)
+            sol.number.push_back(1);
+        return sol;
+     }
+     else
+         return *this - (-b);
 }
 
 /**Operator '<<' overloaded for print bignum**/
 ostream& operator <<(ostream &o, const Bignum &A){
-    if(!A.get_sign() && A.get_number()[A.get_number().size() - 1] != 0)
+    if(!A.get_sign() && A.get_number()[A.get_number().size() - 1] != 0)//Addin '-' sign to negatives numbers and removing it from '0'
         cout<<"-";
     for(int i =  A.get_number().size() - 1;i > -1;i--)
         o<<A.number[i];
     o<<endl;
+
+    return o;
 }
 
 /**Operator '>>' overloaded for read bignum**/
 istream& operator >>(istream &i, Bignum &A){
     string s;
-    cout<<"Introduzca el Bignum:\n";
+    cout<<"Insert Bignum:\n";
     i>>s;
     A.set_number(s);
 }
@@ -228,7 +267,16 @@ int main()
     cout<< A+B;
     cout<< "The substraction is: \n";
     cout<< A-B;
+    cout<<"The lesser is: ";
+    if(A < B)
+        cout<< A <<endl;
+    else
+        cout<<B<<endl;
 
-
+    cout<<"The greater is: ";
+    if(A > B)
+        cout<< A<<endl;
+    else
+        cout<< B<<endl;
     return 0;
 }
