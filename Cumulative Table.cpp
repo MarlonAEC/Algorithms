@@ -1,6 +1,8 @@
-//By Marlon
-//name: TABLA ACUMULATIVA
-
+/**
+Author: Marlon A. Espinosa Castañeiras
+https://www.linkedin.com/in/marlonaec/
+Algorithm: Cumulative Table
+**/
 #include <cstdio>
 
 using namespace std;
@@ -23,6 +25,5 @@ int main(int argc, char *argv[])
             printf("%d\n",M[i][c]);
               }
 
-    system("PAUSE");
     return 0;
 }
