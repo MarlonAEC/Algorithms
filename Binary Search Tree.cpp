@@ -1,13 +1,12 @@
 /**
 Marlon A. Espinosa Castañeiras
 28-02-2013
-Estructura: Árbol de Busqueda Binaria
-Descripción: Sirve para introducir valores y buscar elementos en un árbol
-en tiempo logaritmico, además estan implementadas las
-funciones máximo, mínimo, sucesor, predecesor, borrar
-elementos, buscar un elemento en el árbol, recorrido
-Entre-Orden en un árbol y se expone como implementar los
-demás recorridos, todo esto en tiempo O( log N ).
+Structure: Binary Search Tree
+Description: Used to enter values and search for items in a tree
+in logarithmic time, the
+maximum, minimum, successor, predecessor, delete functions
+elements, search for an element in-Order in a tree and explain how
+to implement the other paths, all this in time O (log N).
 **/
 
 #include <iostream>
@@ -15,241 +14,241 @@ demás recorridos, todo esto en tiempo O( log N ).
 #include <cstdlib>
 #include <vector>
 #include <algorithm>
+#include <time.h>
 
 using namespace std;
 
-typedef int TDato;
+typedef int TData;
 
 vector <int> V;
-struct TNodo{
-    TNodo* p;//Padre
-	TDato dato;//Nodo
-	TNodo* hi;//Hijo izquierdo
-	TNodo* hd;//Hijo derecho
+struct TNode{
+    TNode* p;//father
+	TData dato;//Node
+	TNode* lc;//left child
+	TNode* rc;//rigth child
 };
 
-typedef TNodo* TArbol;//puntero a un nodo del Arbol
+typedef TNode* TTree;//pointer to a tree
 
-TArbol InsertDato(TArbol& A, TDato x){
+TTree InsertDato(TTree& A, TData x){
 	if (A == NULL){
-		A = new TNodo;//se crea espacio en memoria;
+		A = new TNode;//reserving memory space;
 		A -> dato = x;
-		A -> p = NULL;//se setea los hijos de el root en NULL y también el padre
-		A -> hi = NULL;
-		A -> hd = NULL;
+		A -> p = NULL;//setting the root childs to NULL and also  the father of the root
+		A -> lc = NULL;
+		A -> rc = NULL;
 	}
 	else{
-	    // se busca si es menor que el nodo analizado y se inserta en el subarbol que representa el hijo izquierdo
+	    // it is searched if it is smaller than the analyzed node and inserted into the subtree representing the left child
 		if (A -> dato >= x){
-			A -> hi = InsertDato(A -> hi, x);
-			A -> hi -> p = A;
+			A -> lc = InsertDato(A -> lc, x);
+			A -> lc -> p = A;
         }
-        //lo mismo pero buscando el mayor y se inserta en el subarbol derecho
+        //the same but looking for the major and inserted in the right subtree
 		else{
-			A -> hd = InsertDato(A -> hd, x);
-			A -> hd -> p = A;
+			A -> rc = InsertDato(A -> rc, x);
+			A -> rc -> p = A;
         }
 	}
-	return A;// se devuelve el árbol generado luego de la inserción
-}/**OK**/
+	return A;// the tree generated after insertion is returned
+}
 
 /***
-Nota: Para los demás recorridos solo se necesita cambiar
-la posición en la que se imprime el nodo.
+Note:For the other routes you only need to change
+the position in which the node is printed.
 ***/
-void EntreOrden(TArbol A){
-    /**** Recorriodo en Entre-Orden ****/
+void inOrder(TTree A){
+    /**** in-Orden path ****/
 	if (A == NULL)
 		return;
-	if (A -> hi != NULL)
-		EntreOrden(A -> hi);
+	if (A -> lc != NULL)
+		inOrder(A -> lc);
 	cout << A -> dato << " ";
-	if (A -> hd != NULL)
-		EntreOrden(A -> hd);
-}/**OK**/
+	if (A -> rc != NULL)
+		inOrder(A -> rc);
+}
 
-TArbol Buscar(TArbol A, TDato x)
+TTree Search(TTree A, TData x)
 {
 	while (A != NULL && A -> dato != x){
-/*si el buscado es menor que el nodo analizado busco en el subarbol izquierdo*/
+/*If the search is smaller than the analyzed node, I look in the left subtree*/
 		if (x < A -> dato)
-			A = A -> hi;
-/*si el buscado es mayor que el nodo analizado busco en el subarbol derecho*/
+			A = A -> lc;
+/*If the search is greater than the analyzed node, I look in the right subtree*/
 		else
-			A = A -> hd;
+			A = A -> rc;
 	}
 	if (A == NULL)
 		return NULL;
 	return A;
 
-/** Implementación Recursiva de la busqueda**/
+/** Recursive Search Implementation**/
 /*  if(A == NULL)
 		return NULL;
 	if(A-> dato == x)
 		return A;
 	if(A -> dato > x)
-		return Buscar(A -> hi, x);
-	return Buscar(A -> hd, x);
+		return Buscar(A -> lc, x);
+	return Buscar(A -> rc, x);
 	*/
 }/**OK**/
 
-TArbol Minimo(TArbol A){
-//Buscar el mínimo no es más que siempre cojer el nodo más
-//a la izquierda mientras exista alguno
-	while( A -> hi != NULL)
-        A = A -> hi;
+TTree Minimum(TTree A){
+//Finding the minimum is nothing more than always taking the
+//leftmost node while there is one
+	while( A -> lc != NULL)
+        A = A -> lc;
     return A;
-}/**OK**/
+}
 
 
-TArbol Maximo(TArbol A){
-//Lo mismo que el mínimo pero buscando el más a la derecha
-//minetras exista alguno
-	while(A -> hd != NULL)
-        A = A -> hd;
+TTree Maximum(TTree A){
+//The same as the minimum but looking for the rightmost while there is one
+	while(A -> rc != NULL)
+        A = A -> rc;
     return A;
-}/**OK**/
+}
 
-TArbol Sucesor(TArbol AA)
+TTree Succesor(TTree AA)
 {
-/*Si tiene hijo derecho busco en el subarbol derecho
-el mínimo, ya que a la derecha del nodo están los mayores
-que el me quedo con el mínimo de ellos
+/*If you have a right child, look in the right subtree
+to the minimum, since to the right of the node are the largest
+that he kept the minimum of them
  */
-    if(AA -> hd != NULL)
-        return Minimo(AA -> hd);
-    TArbol y = AA -> p;
+    if(AA -> rc != NULL)
+        return Minimum(AA -> rc);
 /*
-Si no tiene hijo derecho voy intercambiando hijo con padre
-y cuando el hijo no sea el hijo derecho del padre devuelvo el
-padre y ese es el sucesor del nodo pedido.
+If you do not have a right child, I am exchanging a child with a father
+and when the son is not the right son of the father I return the
+father and that is the successor of the requested node.
 */
-    while(y != NULL && AA == y -> hd){
+    TTree y = AA -> p;
+    while(y != NULL && AA == y -> rc){
         AA = y;
         y = y -> p;
     }
     return y;
-}/**OK**/
+}
 
-TArbol Predecessor(TArbol AA)
+TTree Predecessor(TTree AA)
 {
-/*Si tiene hijo izquierdo busco en el subarbol derecho
-el mínimo, ya que a la izquierda del nodo están los mayores
-que el me quedo con el máximo de ellos
+/*If you have a left child, I look in the right subtree
+the minimum, since to the left of the node are the largest
+that he stayed with the maximum of them
  */
-    if(AA -> hi != NULL)
-        return Maximo(AA -> hi);
-    TArbol y = AA -> p;
+    if(AA -> lc != NULL)
+        return Maximum(AA -> lc);
+    TTree y = AA -> p;
 /*
-Si no tiene hijo izquierdo voy intercambiando hijo con padre
-y cuando el hijo no sea el hijo izquierdo del padre devuelvo
-el padre y ese es el predecesor del nodo pedido.
+If you don't have a left child, I'm exchanging a son with a father
+and when the son is not the left son of the father I return
+the father and that is the predecessor of the requested node.
 */
-    while(y != NULL && AA == y -> hi){
+    while(y != NULL && AA == y -> lc){
         AA = y;
         y = y -> p;
     }
     return y;
-}/**OK**/
+}
 
-TArbol Transplant(TArbol& u, TArbol& v)
+TTree Transplant(TTree& u, TTree& v)
 {
-/**Función Auxiliar para el Delete**/
+/**Auxiliary Function for Delete**/
     if(u -> p == NULL){
-        v -> hi = u -> hi;
-        v -> hd = u -> hd;
+        v -> lc = u -> lc;
+        v -> rc = u -> rc;
         v -> p = NULL;
     }
-    else if(u == u -> p -> hi)
-        u -> p -> hi = v;
+    else if(u == u -> p -> lc)
+        u -> p -> lc = v;
     else
-        u -> p -> hd = v;
+        u -> p -> rc = v;
     if(v != NULL)
         v -> p = u -> p;
-}/**OK**/
+}
 
-TArbol Delete(TArbol AA, TArbol z)
+TTree Delete(TTree AA, TTree z)
 {
 /*
-Si no tiene hijo izquierdo sobrescribo el nodo con su hijo
-derecho
+If you don't have a left child, I overwrite the node with your child
+right
 */
-    if(z -> hi == NULL)
-        Transplant(z, z -> hd);
+    if(z -> lc == NULL)
+        Transplant(z, z -> rc);
 /*
-Si no tiene hijo derecho sobrescribo el nodo con su hijo
-izquierdo
+If you don't have a right child, I overwrite the node with your left child
+
 */
-    else if(z -> hd == NULL)
-        Transplant(z, z -> hi);
+    else if(z -> rc == NULL)
+        Transplant(z, z -> lc);
 /*
-Si tiene los dos hijos  busco su sucesor que se encuentra
-en su subarbol derecho y sobrescribo el nodo Y con su
-subarbol derecho porque no tiene subarbol izquierdo, porque
-si lo tuviera no fuera sucesor del nodo a borrar, luego
-sobreescribo el nodo a borrar con el nodo Y y seteo los
-respectivos hijos y padres
+If you have both children I look for your successor who is
+in its right subtree and I overwrite the node with its
+right subtree because it has no left subtree, because
+if It had it wouldn´t a successor of the node to delete, then
+I overwrite the node to delete with that node and set the
+respective children and parents
 */
     else{
-        TArbol y = Minimo( z -> hd);
+        TTree y = Minimum( z -> rc);
         if(y -> p != z){
-            Transplant(y, y -> hd);
-            y -> hd = z -> hd;
-            y -> hd -> p = y;
+            Transplant(y, y -> rc);
+            y -> rc = z -> rc;
+            y -> rc -> p = y;
         }
         Transplant(z, y);
-        y -> hi = z -> hi;
-        y -> hi -> p = y;
+        y -> lc = z -> lc;
+        y -> lc -> p = y;
     }
-}/**OK**/
+}
 
-bool Sucesor(TArbol A, TDato x, TDato& suc){
+bool Succesor(TTree A, TData x, TData& suc){
     /**Función obtimizada para buscar el Sucesor*/
 /*
-Devuelve falso si el arbol esta bacío o si el nodo al cual
-se le busca el sucesor es el máximo nodo del arbol, y
-devuelve verdadero si el nodo existe y con la llamada
-por referencia se setea el valor de ese sucesor.
+Returns false if the tree is empty or if the node to which
+the successor is sought is the maximum node of the tree, and
+returns true if the node exists and with the call
+by reference the value of that successor is set.
 */
-    TArbol Nod = Buscar(A, x);
+    TTree Nod = Search(A, x);
     if (A == NULL)
         return false;
-    Nod = Sucesor(Nod);
+    Nod = Succesor(Nod);
     if (Nod == NULL)
         return false;
-    suc = Nod -> dato;//seteo de valor por referencia
+    suc = Nod -> dato;//setting the value by reference
     return true;
-}/**OK**/
+}
 
-TArbol ABB;
+TTree ABB;
 
 int main(){
-	assert(ABB == NULL);//interumpe el programa si no se setea el árbol a NULL
+	assert(ABB == NULL);//Interrupt the program if the tree is not set to NULL
 
 	for(int i = 0;i <= 10;i++){
-        int x = rand() % 100;/*Se hacen inserciones aleatorias*/
-        V.push_back(x);/*Para seber el orden y los nodos que se introdujeron al ABB*/
+        int x = rand() % 100;/*random insertions*/
+        V.push_back(x);/*To know the order and the nodes that were inserted to the ABB*/
         InsertDato(ABB, x);
 	}
-	//sort(V.begin(),V.end());
-	cout<< "Orden en que se introdujeron los nodos:"<<endl;
+
+	cout<< "Order of the nodes:"<<endl;
 	for(int i = 0;i < V.size();i++)
         cout<< V[i]<<" ";
     cout<< "\n\n";
 
-    cout<< "Nodo seleccionado: "<<V[0]<< "\n";
-    cout<< "Predecessor: "<<Predecessor( Buscar( ABB,V[0] ) ) -> dato<<"\n";
-    TDato sucesor;
-    if (Sucesor(ABB, V[0], sucesor))
-        cout << "Sucesor: "<<sucesor<<"\n";
-    cout<<"Maximo en el Arbol de Busqueda Binaria: "<< Maximo(ABB) -> dato <<"\n";
-    cout<<"Minimo en el Arbol de Busqueda Binaria: "<<Minimo(ABB) -> dato <<"\n\n";
-    cout<< "Recorrido en Entre-Orden antes de un DELETE:"<<"\n";
-    EntreOrden(ABB);
+    cout<< "Selected node: "<<V[0]<< "\n";
+    cout<< "Predecessor: "<<Predecessor( Search( ABB,V[0] ) ) -> dato<<"\n";
+    TData succesor;
+    if (Succesor(ABB, V[0], succesor))
+        cout << "Succesor: "<<succesor<<"\n";
+    cout<<"Maximum in the Binary Search Tree: "<< Maximum(ABB) -> dato <<"\n";
+    cout<<"Minimum in the Binary Search Tree: "<<Minimum(ABB) -> dato <<"\n\n";
+    cout<< "In-Order path before a DELETE:"<<"\n";
+    inOrder(ABB);
     cout<<"\n";
     cout<< "Recorrido en Entre-Orden despues de un DELETE:"<<"\n";
-    Delete( ABB, Buscar(ABB, V[0]) );
-    EntreOrden(ABB);
+    Delete( ABB, Search(ABB, V[0]) );
+    inOrder(ABB);
     cout<<"\n";
 	return 0;
 }
