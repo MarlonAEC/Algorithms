@@ -1,7 +1,7 @@
-/* Make by Marlon ESPINOSA CASTAÑEIRAS 
+/* Make by Marlon ESPINOSA CASTAÑEIRAS
 Fecha: 22/12/2011
 algorithm: Breadth First Search(BFS)
-descripción: Sirve para buscar el minimo camino entre el vértice 1 y el vértice n,
+descripción: find the minimum path between vertex 1 and vertex n
 */
 
 #include <cstdio>
@@ -22,32 +22,32 @@ int marca[MAX];
 int main()
 {
   int v,e,x,val;
-  
-  scanf("%d",&val);   // lee el vertice para el cual se busca el camino minimo
-   scanf("%d %d",&v,&e); //lee la cantidad de vértices y aristas del grafo
-     
+
+  scanf("%d",&val);   //read the vertex for wich you are looking the path
+   scanf("%d %d",&v,&e); //Read the amount of vertex and the amount of graph edges
+
     for(int j = 0;j < e; j++){
             cord F = make_pair(0,0);
-            scanf("%d %d", &F.X,&F.Y);   //esto es para leer las aristas
-            mat[F.X][F.Y] = 1;        //esto es para hacer la metriz booleana
-            mat[F.Y][F.X] = 1;        //esto también es para la booleana
+            scanf("%d %d", &F.X,&F.Y);   //reading edges
+            mat[F.X][F.Y] = 1;        //Building the boolean Matrix of connections between nodes
+            mat[F.Y][F.X] = 1;
             }
-                
+
      marca[1] = 1;
      Q.push(1);
-     
-    while(!Q.empty()){            //para hacer el camino y poner la marca a los vértices
+
+    while(!Q.empty()){            //building the path and marking the visited nodes
      x = Q.front();
-     Q.pop();          
+     Q.pop();
        for(int y = 1; y <= v; y++){
-             if(marca[y]== 0 && mat[x][y] == 1){
+             if(marca[y]== 0 && mat[x][y] == 1){// if it is not visited and there is a edge between nodes mark it and add the node to solution
                 Q.push(y);
                 marca[y] = marca[x] + 1;
                 }
              }
     }
-    
+
     printf("%d end\n",marca[val]);
-    
+
     return 0;
 }
